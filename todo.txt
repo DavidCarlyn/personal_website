@@ -1,5 +1,1 @@
-Upload a file
-Select data (per axis)
-2-3 axis allowed, with third axis requiring numeric value
-All data must have same size
-Allow editing
+Able to visualize aum
