@@ -1,25 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+
 import './App.css';
 
-import ScatterPlotAUM from './components/d3/ScatterPlotAUM';
+import JSONPicker from './components/JSONPicker';
 
 function App() {
-    const CHART_ID = "chart";
-    const [data, setData] = useState(null);
-    const [chartData, setChartData] = useState(null);
-    const [dataManagement, setDataManagement] = useState(<></>);
-    const [formData, setFormData] = useState({
-        "correctColor" : "#00ff00",
-        "incorrectColorAlpha" : "ff",
-        "incorrectColor" : "#ff0000",
-        "correctColorAlpha" : "ff",
-        "dummyColor" : "#aaaaaa",
-        "dummyColorAlpha" : "ff",
+    const [jsonData, setJsonData] = useState({});
+    const [graphData, setGraphData] = useState({
+        "xaxis" : null,
+        "yaxis" : null,
+        "zaxis" : null,
     })
 
-    const uploadFile = (e) => {
+    const upload = (e) => {
+        e.preventDefault();
         var files = document.getElementById('files').files;
-        console.log(files);
         if (files.length <= 0) {
             console.log("No files uploaded");
             return false;
@@ -29,96 +24,96 @@ function App() {
     
         fr.onload = function(e) { 
             var result = JSON.parse(e.target.result);
-            setData(result);
+            setJsonData(result);
         }
 
         // read file
         fr.readAsText(files.item(0));
-    };
-
-    const onChangeHandler = (e) => {
-        e.preventDefault();
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-        console.log(formData)
     }
 
-    const processData = (e) => {
-        e.preventDefault();
-        const iterSelect = document.getElementById("iter-select");
-        const iter = iterSelect.options[iterSelect.selectedIndex].value;
-
-        let newChartData = [];
-        const images = data["iterations"][iter]["aum"]["images"];
-        const dummyClass = data["class_num"]
-        for (var key in images) {
-            let pred = images[key]["tsub_prediction"];
-            let gt = images[key]["gt"];
-            let color = formData["dummyColor"] + formData["dummyColorAlpha"];
-            if (pred != dummyClass) {
-                if (pred === gt) {
-                    color = formData["correctColor"] + formData["correctColorAlpha"];
-                } else {
-                    color = formData["incorrectColor"] + formData["incorrectColorAlpha"];
-                }
+    const selectData = (data) => {
+        const radioBtns = document.querySelectorAll('input[name="axis"]');
+        for (const rb of radioBtns) {
+            if (rb.checked) {
+                const id = rb.id
+                setGraphData( prevGraphData => ({
+                    ...prevGraphData,
+                    [id] : data
+                }));
+                break;
             }
-            newChartData.push({
-                "path" : key,
-                "gt" : gt,
-                "source_prediction" : images[key]["source_prediction"],
-                "source_logits" : images[key]["source_logits"],
-                "aum" : images[key]["aum"],
-                "tsub_prediction" : pred,
-                "color" : color
-            })
+        }
+    }
+
+    const drawGraph = (e) => {
+        e.preventDefault();
+        let dataTransform = [];
+        // X Axis
+        let xData = graphData["xaxis"];
+        let key = document.getElementById("xaxis-key").value;
+        let xKeys = [];
+        if (key !== "") {
+            xKeys = key.split("/");
+        }
+        // Y Axis
+        let yData = graphData["yaxis"];
+        key = document.getElementById("yaxis-key").value;
+        let yKeys = [];
+        if (key !== "") {
+            yKeys = key.split("/");
+        }
+        // Z Axis
+        let zData = graphData["zaxis"];
+        key = document.getElementById("zaxis-key").value;
+        let zKeys = [];
+        if (key !== "") {
+            zKeys = key.split("/");
+        }
+        for (var i = 0; i < xData.length; ++i) {
+            let x = xData[i];
+            let y = null;
+            let z = null;
+            xKeys.forEach((k, i) => { x = x[k]; });
+            if (yData !== null) {
+                y = yData[i];
+                yKeys.forEach((k, i) => { y = y[k]; });
+            }
+            if (zData !== null) {
+                z = zData[i];
+                zKeys.forEach((k, i) => { z = z[k]; });
+            }
+            dataTransform.push({
+                x : x,
+                y : y,
+                z : z
+            });
         }
 
-        setChartData(newChartData);
+        console.log(dataTransform);
     }
 
-    // on data update
-    useEffect(() => {
-        if (data === null) return false;
-        let options = []
-        data["iterations"].forEach((d, i) => {
-            options.push(<option value={i}>{i+1}</option>);
-        });
-        console.log("Options", options)
-        setDataManagement(
-            <form>
-                <div>
-                    <select id="iter-select" name="iter-select">
-                        {options}
-                    </select>
-                </div>
-                <div>
-                    <input type="color" id="correctColor" name="correctColor" value={formData["correctColor"]} onChange={onChangeHandler}/>
-                    <input type="text" id="correctColorAlpha" name="correctColorAlpha" value={formData["correctColorAlpha"]} onChange={onChangeHandler}/>
-                </div>
-                <div>
-                    <input type="color" id="incorrectColor" name="incorrectColor" value={formData["incorrectColor"]} onChange={onChangeHandler}/>
-                    <input type="text" id="incorrectColorAlpha" name="incorrectColorAlpha" value={formData["incorrectColorAlpha"]} onChange={onChangeHandler}/>
-                </div>
-                <div>
-                    <input type="color" id="dummyColor" name="dummyColor" value={formData["dummyColor"]} onChange={onChangeHandler}/>
-                    <input type="text" id="dummyColorAlpha" name="dummyColorAlpha" value={formData["dummyColorAlpha"]} onChange={onChangeHandler}/>
-                </div>
-                <button onClick={processData}>Draw Graph</button>
-            </form>
-        )
-    }, [data, formData])
-
-
     return (
-      <div className="App">
-          <h1>Welcome!</h1>
-          <input type="file" id="files" name="files" />
-          <button onClick={uploadFile}>Upload</button>
-          { dataManagement }
-          <ScatterPlotAUM id={CHART_ID} data={chartData} />
-      </div>
+        <div className="App">
+            <h1>Welcome!</h1>
+            <div>
+                <input type="radio" id="xaxis" name="axis" value="X Axis" />
+                <label htmlFor="xaxis">X Axis</label>
+                <input type="text" id="xaxis-key" name="xaxis-key" />
+                <input type="checkbox" id="xaxis-check" name="xaxis-check" disabled checked={graphData["xaxis"] !== null} /><br />
+                <input type="radio" id="yaxis" name="axis" value="Y Axis" />
+                <label htmlFor="yaxis">Y Axis</label>
+                <input type="text" id="yaxis-key" name="yaxis-key" />
+                <input type="checkbox" id="yaxis-check" name="yaxis-check" disabled checked={graphData["yaxis"] !== null} /><br />
+                <input type="radio" id="zaxis" name="axis" value="Z Axis" />
+                <label htmlFor="zaxis">Z Axis</label> 
+                <input type="text" id="zaxis-key" name="zaxis-key" />
+                <input type="checkbox" id="zaxis-check" name="zaxis-check" disabled checked={graphData["zaxis"] !== null} />
+            </div>
+            <input type="file" id='files' />
+            <button onClick={upload}>Upload</button><br />
+            <button onClick={drawGraph}>Draw Graph</button>
+            <JSONPicker data={jsonData} data_selector={selectData} />
+        </div>
     );
 }
 
