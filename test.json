@@ -1,9 +1,0 @@
-{
-    "name" : "David",
-    "age" : 24,
-    "education" : "B.S. Computer Science",
-    "data" : {
-        "x" : [5, 15, 25, 38],
-        "y" : [10, 30, 20, 50]
-    }
-}
