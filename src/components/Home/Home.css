@@ -1,23 +1,34 @@
 .Home {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
     text-align: center;
-    padding: 1em;
-    background-color: #BB0000;
+    background-color: white;
 }
 
-.Home table {
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.Home td {
+.Home .center {
     padding: 1em;
 }
 
 .Home .headshot {
     border-radius: 50%;
+    width: 20em;
+    height: 20em;
 }
 
 .Home .profession {
-    color: white;
-
+    color: black;
 }
+
+.Home .sidebar {
+    background-color: beige;
+}
+
+@media screen and (max-width: 800px) {
+    .Home {
+        grid-template-columns: 1fr;
+    }
+
+    .Home .sidebar {
+        display: none;
+    }
+  }
