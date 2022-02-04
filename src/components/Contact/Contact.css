@@ -1,0 +1,15 @@
+.Contact {
+    background-color: #666666;
+    text-align: center;
+    padding: 1em;
+    color: white
+}
+
+.Contact h1 {
+    color: white;
+    margin: 0px;
+}
+
+.Contact .emails {
+    text-align: center;
+}

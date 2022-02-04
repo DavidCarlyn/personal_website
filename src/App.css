@@ -1,0 +1,21 @@
+.App header {
+    text-align: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+.App header a {
+    text-decoration: none;
+    color: white;
+    font-size: 2em;
+}
+
+.App header a div {
+    background-color: #666666;
+    padding: 1em;
+}
+
+.App header a div:hover {
+    background-color: #777777;
+    font-weight: bold;
+}

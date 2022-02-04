@@ -1,0 +1,23 @@
+.Home {
+    text-align: center;
+    padding: 1em;
+    background-color: #BB0000;
+}
+
+.Home table {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.Home td {
+    padding: 1em;
+}
+
+.Home .headshot {
+    border-radius: 50%;
+}
+
+.Home .profession {
+    color: white;
+
+}

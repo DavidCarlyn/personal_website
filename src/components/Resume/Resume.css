@@ -1,0 +1,10 @@
+.Resume {
+    background-color: #BB0000;
+    text-align: center;
+    padding: 1em;
+}
+
+.Resume h1 {
+    color: white;
+    margin: 0px;
+}
